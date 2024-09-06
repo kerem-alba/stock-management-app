@@ -1,19 +1,26 @@
 import React, { useState } from "react";
 import { signIn } from "../firebase/auth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-const LoginForm = () => {
+const LoginForm = ({ setIsAuthenticated }: { setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   const errorClassName = errorMessage
     ? "block bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
     : "hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative";
+
   const formSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await signIn(email, password);
-    setErrorMessage(result.errorMessage ?? "");
+    try {
+      await signIn(email, password);
+      setIsAuthenticated(true);
+      navigate("/");
+    } catch (error: any) {
+      setErrorMessage(error.message);
+    }
   };
 
   return (
